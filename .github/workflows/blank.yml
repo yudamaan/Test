@@ -28,10 +28,28 @@ jobs:
           TICKET_NUMBER=$(echo "${{ github.event.pull_request.title }}" | sed -nE 's/.*ticket\s*#\s*([0-9]+).*/\1/p')
           echo "::set-output name=ticket_number::${TICKET_NUMBER}"
           
+      - name: Extract ticket number from PR body
+        id: extract_ticket_from_body
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          TICKET_NUMBER_FROM_BODY=$(echo "$PR_BODY" | sed -nE 's|.*/Tickets/ViewTicket/([0-9]+)|\1|p')
+          echo "::set-output name=ticket_number_from_body::${TICKET_NUMBER_FROM_BODY}"
+
+      - name: Determine ticket number to submit
+        id: determine_ticket_number
+        run: |
+          if [[ -n "${{ steps.extract_ticket_from_title.outputs.ticket_number_from_title }}" ]]; then
+            echo "::set-output name=ticket_to_submit::${{ steps.extract_ticket_from_title.outputs.ticket_number_from_title }}"
+          elif [[ -n "${{ steps.extract_ticket_from_body.outputs.ticket_number_from_body }}" ]]; then
+            echo "::set-output name=ticket_to_submit::${{ steps.extract_ticket_from_body.outputs.ticket_number_from_body }}"
+          else
+            echo "::set-output name=ticket_to_submit::"
+          fi
+          
       - name: Make API Request
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
-            curl -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": ${{steps.extract_ticket.outputs.ticket_number}} }' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
+            curl -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": ${{steps.determine_ticket_number.outputs.ticket_to_submit}} }' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
