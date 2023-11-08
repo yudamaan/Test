@@ -25,7 +25,7 @@ jobs:
       - name: Extract ticket number from PR title
         id: extract_ticket_from_title
         run: |
-          TICKET_NUMBER=$(echo "${{ github.event.pull_request.title }}" | grep -oP '\d{6,9}')
+          TICKET_NUMBER=$(echo "${{ github.event.pull_request.title }}" | grep -oP '\d{6,9}' || true)
           echo "::set-output name=ticket_number_from_title::${TICKET_NUMBER}"
           
       - name: Extract ticket number from PR body
@@ -48,7 +48,7 @@ jobs:
           
       - name: Make API Request
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+          if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ] && [ -n "${{steps.determine_ticket_number.outputs.ticket_to_submit}}" ]; then
             curl -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": ${{steps.determine_ticket_number.outputs.ticket_to_submit}} }' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
