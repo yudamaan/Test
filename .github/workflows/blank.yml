@@ -25,7 +25,7 @@ jobs:
       - name: Make API Request
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
-            curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -d "${{ steps.pr_info.outputs.data }}" https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
+            curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}"}' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
