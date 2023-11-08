@@ -23,10 +23,10 @@ jobs:
             }"
             
       - name: Extract ticket number from PR title
-        id: extract_ticket
+        id: extract_ticket_from_title
         run: |
           TICKET_NUMBER=$(echo "${{ github.event.pull_request.title }}" | sed -nE 's/.*ticket\s*#\s*([0-9]+).*/\1/p')
-          echo "::set-output name=ticket_number::${TICKET_NUMBER}"
+          echo "::set-output name=ticket_number_from_title::${TICKET_NUMBER}"
           
       - name: Extract ticket number from PR body
         id: extract_ticket_from_body
