@@ -21,11 +21,17 @@ jobs:
               \"number\": ${{ github.event.pull_request.number }},
               \"user\": \"${{ github.event.pull_request.user.login }}\"
             }"
-
+            
+      - name: Extract ticket number from PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          TICKET_NUMBER=$(echo "$PR_TITLE" | grep -oP 'ticket\s*#\s*(\d+)' | grep -oP '\d+')
+          echo "Extracted Ticket Number: $TICKET_NUMBER"
+          
       - name: Make API Request
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
-            curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}"}' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
+            curl -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": "${{TICKET_NUMBER}}" }' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
