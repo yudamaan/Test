@@ -1,0 +1,21 @@
+name: API Request on PR Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  api_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Make API Request
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+            curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -d '{"key": "value"}' https://example.com/api/endpoint
+          fi
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
