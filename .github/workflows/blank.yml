@@ -49,7 +49,7 @@ jobs:
       - name: Make API Request
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.event.pull_request.merged }}" == "true" ] && [ -n "${{steps.determine_ticket_number.outputs.ticket_to_submit}}" ]; then
-            curl -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": ${{steps.determine_ticket_number.outputs.ticket_to_submit}} }' https://httpdump.app/dumps/3220de01-ed9d-488e-a34f-9893a07fed60
+            curl -s -X POST -H "Content-Type: application/json" -d '{"user": "${{github.event.pull_request.user.login}}", "number": "${{github.event.pull_request.number}}", "ticket_number": ${{steps.determine_ticket_number.outputs.ticket_to_submit}} }' https://hub.jivetel.com/api/Tickets/PostReply
           fi
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
